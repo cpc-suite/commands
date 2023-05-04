@@ -13,21 +13,24 @@ import os
 
 def main(filename, mode, palette, out):
 
-    TMP_FOLDER = "f-"+filename
-    TMP_JSON = TMP_FOLDER + "/" + os.path.splitext(filename)[0]+".json"
-    OUTPUT_FILE = os.path.splitext(filename)[0] + ".pal"
-    
+    TMP_FOLDER = out + "/f-"+os.path.basename(filename)
+    TMP_FILE = os.path.basename(os.path.splitext(filename)[0])
+    TMP_JSON = TMP_FOLDER + "/" + TMP_FILE+".json"
+    print ("[INFO] Filename: " + filename)
     cmd = ['martine', '-in', filename, '-mode', str(mode), '-out', TMP_FOLDER, '-json']
     
     try:
         if out:
             output = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
-            print(output.decode())
+            # print(output.decode())
+            print ("[INFO] Convert : " + out + "/" + os.path.basename(TMP_FILE.upper() + '.SCR'))
             if not os.path.exists(out):
                 os.makedirs(out)
             # Copy .pal file to copy folder
-            shutil.copy2(os.path.join(TMP_FOLDER, os.path.splitext(filename)[0].upper() + '.PAL'), out)
-            shutil.copy2(os.path.join(TMP_FOLDER, os.path.splitext(filename)[0].upper() + '.SCR'), out)
+
+            shutil.copy2(os.path.join(TMP_FOLDER, TMP_FILE.upper() + '.PAL'), out)
+            shutil.copy2(os.path.join(TMP_FOLDER, TMP_FILE.upper() + '.SCR'), out)
+            print("[INFO] ------------------------------------------------------------------------")
         else:
             subprocess.check_output(cmd, stderr=subprocess.DEVNULL)
     except subprocess.CalledProcessError as e:
@@ -52,4 +55,3 @@ def main(filename, mode, palette, out):
 
 if __name__ == '__main__':
     main()
-
