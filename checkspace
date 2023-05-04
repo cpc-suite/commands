@@ -1,0 +1,68 @@
+#!/bin/bash
+
+function usage(){
+  echo ""
+  echo "checkspace version 0.1 (by Destroyer), https://github.com/cpc-suite/commands"
+  echo ""
+  echo "  Usage :" 
+  echo "    checkspace <Source Folder>"
+  echo ""
+}
+
+# ANSI Sequences for terminal colored printing
+COLOR_RED="\e[31m"
+COLOR_YELLOW="\e[33m"
+COLOR_NORMAL="\e[0m"
+DISC_SPACE=$2
+
+# Check that the two required arguments are passed
+if [ $# -ne 2 ]; then
+  usage
+  echo "Error: Two arguments must be provided: source folder and Size Disc"
+  exit 1
+fi
+
+# Check that the source folder exists
+if [ ! -d "$1" ]; then
+  echo "Error: Source folder does not exist"
+  exit 1
+fi
+
+# Get Bytes files
+total_bytes=0
+
+echo 
+echo "Drive  A:  user  0"
+echo 
+for file in "$1"/*.*; do
+	if [ -f $file ]; then
+		file_bytes=`stat -c "%s" $file`
+        file_bytes=$(($file_bytes / 1024))
+        if [ $file_bytes -eq 0 ]; then
+            file_bytes=1
+        fi
+        file_name=$(printf "%-10s" $(basename $file))
+        nombre=$(echo ${file_name%.*} | awk '{printf "%-8s", $0}')
+        extension=$(echo ${file_name##*.} | awk '{printf "%-8s", $0}')
+        size="$(printf '%2s' "$file_bytes")K"
+        echo "${nombre}.${extension}${size}"
+		total_bytes=$((total_bytes+file_bytes))
+	fi
+done
+
+total_kb=$(($total_bytes / 1024))
+if [ $total_kb -eq 0 ]; then
+    total_kb=1
+fi
+echo ""
+free=$(($DISC_SPACE-$total_kb))
+echo "  ${free}K free"
+echo
+
+if [ $total_kb -gt $DISC_SPACE ]; then
+	echo -e "[${COLOR_RED}ERROR${COLOR_NORMAL}] Total KB ($total_kb) is greater than $DISC_SPACE KB."
+	exit 1
+fi
+
+
+

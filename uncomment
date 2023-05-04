@@ -1,0 +1,42 @@
+#!/bin/bash
+
+function usage(){
+  echo ""
+  echo "uncomment version 0.1 (by Destroyer), https://github.com/cpc-suite/uncomment"
+  echo ""
+  echo "  Usage :" 
+  echo "    uncomment <Source Folder> <Destination Folder>"
+  echo ""
+}
+
+
+# Verificar que se hayan pasado los dos argumentos necesarios
+if [ $# -ne 2 ]; then
+  usage
+  echo "Error: Two arguments must be provided: source folder and destination folder"
+  exit 1
+fi
+
+# Verificar que la carpeta origen exista
+if [ ! -d "$1" ]; then
+  echo "Error: Source folder does not exist"
+  exit 1
+fi
+
+# Crear la carpeta destino si no existe
+if [ ! -d "$2" ]; then
+  echo "Creating destination folder..."
+  mkdir "$2"
+fi
+
+# Iterar sobre los archivos de la carpeta origen con extensión .BAS o .bas
+for file in "$1"/*.{BAS,bas}; do
+  # Verificar que el archivo existe y es un archivo regular
+  if [ -f "$file" ]; then
+    # Eliminar las líneas que empiezan con "1 '"
+    sed '/^1 \x27/d' "$file" > "$2/$(basename "$file" | tr [:lower:] [:upper:])"
+    echo "[OK] uncomment file: $(basename "$file" | tr [:lower:] [:upper:])" 
+  fi
+done
+
+echo "Completed process"
